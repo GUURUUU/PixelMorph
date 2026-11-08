@@ -1,0 +1,21 @@
+# PixelMorph — Core dependencies
+PyQt6>=6.5
+opencv-python>=4.8
+numpy>=1.24
+onnxruntime>=1.16
+onnx>=1.14
+
+# Virtual camera (auto-detects OBS, e2eSoft VCam, Unity Capture, etc.)
+pyvirtualcam>=0.10
+
+# Recording (audio passthrough)
+pyaudio>=0.2.13
+
+# Camera enumeration
+pygrabber>=0.2
+
+# Optional for CUDA machines — replace onnxruntime above for extra speed:
+# onnxruntime-gpu>=1.16
+
+# Face swap model weights (stored externally):
+#   python scripts/download_models.py

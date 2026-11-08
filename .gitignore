@@ -1,0 +1,38 @@
+# Model weights — never commit these
+models/
+*.onnx
+
+# Local machine pointers (absolute paths vary per install)
+models_path.txt
+
+# Local upstream oracle (not part of this package)
+facefusion/
+
+# Local golden-test oracle (needs a private facefusion clone)
+scripts/verify_ffcompat.py
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# App runtime artifacts
+recordings/
+logs/
+*.log
+
+# Build artifacts (BestCam rebuilds via CMake)
+BestCam/build/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+Thumbs.db
+desktop.ini
+
+# Scratch
+e2e_output.png

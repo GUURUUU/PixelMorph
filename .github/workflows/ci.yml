@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy opencv-python-headless pytest onnxruntime
+
+      - name: Syntax gate (AST) — every python file must parse
+        run: |
+          python -c "
+          from pathlib import Path
+          import ast, sys
+          roots = [Path('app'), Path('scripts'), Path('tests')]
+          files = [f for r in roots for f in r.rglob('*.py')] + [Path('pixelmorph.py')]
+          bad = []
+          for f in files:
+              try:
+                  ast.parse(f.read_text(encoding='utf-8'))
+              except SyntaxError as e:
+                  bad.append(f'{f}: {e}')
+          if bad:
+              [print(b) for b in bad]
+              sys.exit(1)
+          print(f'{len(files)} files parsed OK')
+          "
+
+      - name: Tests
+        run: python -m pytest tests/ -q --timeout=600 || python -m pytest tests/ -q
+
+      - name: e2e self-test (expect SKIP without models)
+        run: python scripts/e2e_selftest.py
+
+      - name: Secret scan
+        run: |
+          python -c "
+          from pathlib import Path
+          import re, sys
+          patterns = [
+              r'ghp_[A-Za-z0-9]{30,}',
+              r'github_pat_[A-Za-z0-9_]{30,}',
+              r'AKIA[0-9A-Z]{16}',
+              r'sk-[A-Za-z0-9]{20,}',
+              r'-----BEGIN [A-Z ]*PRIVATE KEY-----',
+              r'(api[_-]?key|secret|token)\s*[=:]\s*[\"\x27][^\"\x27]{12,}',
+          ]
+          offenders = []
+          skip_dirs = {'.git', '__pycache__', 'models', 'facefusion', '.pnpm-store'}
+          for f in Path('.').rglob('*'):
+              if any(part in skip_dirs for part in f.parts) or f.suffix in {'.onnx', '.dll', '.exe', '.jar', '.png', '.jpg', '.gif', '.webp', '.tlog', '.bin', '.obj', '.h', '.cpp', '.kt', '.xml', '.slnx', '.vcxproj', '.filters', '.sln'}:
+                  continue
+              try:
+                  text = f.read_text(encoding='utf-8')
+              except (UnicodeDecodeError, OSError):
+                  continue
+              for p in patterns:
+                  if re.search(p, text):
+                      offenders.append(f'{f}: matches {p}')
+          if offenders:
+              [print(o) for o in offenders]
+              sys.exit(1)
+          print('no secrets found')
+          "
