@@ -52,6 +52,7 @@ def main() -> int:
         log.warning("SKIP: test faces not present (%s / %s)", src_path, tgt_path)
         return 0
 
+    from app.face_engine import FaceEngine
     engine = FaceEngine()
     if not engine.available_models:
         log.error("FAIL: engine reports no usable swapper models")
