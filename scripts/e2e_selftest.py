@@ -20,7 +20,14 @@ sys.path.insert(0, str(REPO_ROOT))
 import cv2
 import numpy as np
 from app.logger import setup_logging
-from app.face_engine import FaceEngine, MODEL_FILES
+
+
+def _model_files():
+    try:
+        from app.face_engine import MODEL_FILES
+        return MODEL_FILES
+    except FileNotFoundError:
+        return {}
 
 
 def main() -> int:
@@ -33,7 +40,8 @@ def main() -> int:
     setup_logging()
     log = logging.getLogger("e2e")
 
-    if not MODEL_FILES:
+    model_files = _model_files()
+    if not model_files:
         log.info("SKIP: no swapper models found "
                  "(set PIXELMORPH_MODELS or run scripts/download_models.py)")
         return 0
