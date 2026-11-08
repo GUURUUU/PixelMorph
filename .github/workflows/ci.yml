@@ -43,7 +43,7 @@ jobs:
           "
 
       - name: Tests
-        run: python -m pytest tests/ -q --timeout=600 || python -m pytest tests/ -q
+        run: python -m pytest tests/ -q
 
       - name: e2e self-test (expect SKIP without models)
         run: python scripts/e2e_selftest.py

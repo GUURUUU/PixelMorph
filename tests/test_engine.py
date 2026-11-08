@@ -24,8 +24,8 @@ def test_engine_model_contract():
         fe = _load_engine_module()
     except FileNotFoundError as e:
         # no-models environment: the error must guide the user to the fix
-        assert "download_models.py" in str(e.value)
-        assert "onnx" in str(e.value)
+        assert "download_models.py" in str(e)
+        assert "onnx" in str(e)
         pytest.skip("no models on disk (CI default); error-raise contract verified")
     assert fe.MODEL_FILES, "engine must expose at least one resolved model"
     assert set(fe.MODEL_CONFIGS) == set(fe.MODEL_FILES), \
