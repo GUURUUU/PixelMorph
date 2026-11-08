@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/demo.gif" alt="PixelMorph demo" width="860">
-</p>
+
 
 <h1 align="center">PixelMorph</h1>
 
