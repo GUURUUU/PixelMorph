@@ -49,32 +49,4 @@ jobs:
         run: python scripts/e2e_selftest.py
 
       - name: Secret scan
-        run: |
-          python -c "
-          from pathlib import Path
-          import re, sys
-          patterns = [
-              r'ghp_[A-Za-z0-9]{30,}',
-              r'github_pat_[A-Za-z0-9_]{30,}',
-              r'AKIA[0-9A-Z]{16}',
-              r'sk-[A-Za-z0-9]{20,}',
-              r'-----BEGIN [A-Z ]*PRIVATE KEY-----',
-              r'(api[_-]?key|secret|token)\s*[=:]\s*[\"\x27][^\"\x27]{12,}',
-          ]
-          offenders = []
-          skip_dirs = {'.git', '__pycache__', 'models', 'facefusion', '.pnpm-store'}
-          for f in Path('.').rglob('*'):
-              if any(part in skip_dirs for part in f.parts) or f.suffix in {'.onnx', '.dll', '.exe', '.jar', '.png', '.jpg', '.gif', '.webp', '.tlog', '.bin', '.obj', '.h', '.cpp', '.kt', '.xml', '.slnx', '.vcxproj', '.filters', '.sln'}:
-                  continue
-              try:
-                  text = f.read_text(encoding='utf-8')
-              except (UnicodeDecodeError, OSError):
-                  continue
-              for p in patterns:
-                  if re.search(p, text):
-                      offenders.append(f'{f}: matches {p}')
-          if offenders:
-              [print(o) for o in offenders]
-              sys.exit(1)
-          print('no secrets found')
-          "
+        run: python scripts/secret_scan.py
